@@ -38,23 +38,40 @@
 
 function calculate() {
 
-    let score = 0;
-    let inputs = document.querySelectorAll('input[type="radio"]:checked');
+let total = 0;
+let unanswered = 0;
 
-    inputs.forEach(input => {
-        score += parseInt(input.value);
-    });
+for(let i=1;i<=25;i++){
+    let selected = document.querySelector(`input[name="q${i}"]:checked`);
 
-    let message = "";
+    if(selected){
+        total += parseInt(selected.value);
+    } else {
+        unanswered++;
+    }
+}
 
-    if(score >= 85) message = "Excellent EI";
-    else if(score >= 65) message = "Good EI";
-    else if(score >= 45) message = "Needs improvement";
-    else message = "Development required";
+if(unanswered > 0){
+    alert("Please answer all questions!");
+    return;
+}
 
-    document.getElementById("result").innerHTML =
+let interpretation = "";
 
+if(total >= 85)
+    interpretation = "Excellent Emotional Intelligence";
+else if(total >= 65)
+    interpretation = "Good Emotional Intelligence";
+else if(total >= 45)
+    interpretation = "Needs Improvement";
+else
+    interpretation = "Development Required";
 
+document.getElementById("result").innerHTML =
+`Total Score: ${total}<br>${interpretation}`;
+
+window.scrollTo(0, document.body.scrollHeight);
+}
 </script>
 
 </body>

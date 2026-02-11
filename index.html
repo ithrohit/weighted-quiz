@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Weighted Quiz</title>
+</head>
+
+<body>
+<form id="quiz">
+  
+<h2>Can you tell when your mood is changing?</h2>
+<label><input type="radio" name="q1" value="4"> Always</label><br>
+<label><input type="radio" name="q1" value="3"> Sometimes</label><br>
+<label><input type="radio" name="q1" value="2"> Rarely</label><br>
+<label><input type="radio" name="q1" value="1"> Never</label><br>
+
+<h2>Do you know when you are becoming defensive?</h2>
+<label><input type="radio" name="q2" value="4"> Always</label><br>
+<label><input type="radio" name="q2" value="3"> Sometimes</label><br>
+<label><input type="radio" name="q2" value="2"> Rarely</label><br>
+<label><input type="radio" name="q2" value="1"> Never</label><br>
+
+<h2>Can you tell when your emotions are affecting your performance?</h2>
+<label><input type="radio" name="q3" value="4"> Always</label><br>
+<label><input type="radio" name="q3" value="3"> Sometimes</label><br>
+<label><input type="radio" name="q3" value="2"> Rarely</label><br>
+<label><input type="radio" name="q3" value="1"> Never</label><br>
+
+  
+<br>
+
+<button type="button" onclick="calculate()">Submit</button>
+
+</form>
+
+<h3 id="result"></h3>
+
+<script>
+
+function calculate() {
+
+    let score = 0;
+    let inputs = document.querySelectorAll('input[type="radio"]:checked');
+
+    inputs.forEach(input => {
+        score += parseInt(input.value);
+    });
+
+    let message = "";
+
+    if(score >= 85) message = "Excellent EI";
+    else if(score >= 65) message = "Good EI";
+    else if(score >= 45) message = "Needs improvement";
+    else message = "Development required";
+
+    document.getElementById("result").innerHTML =
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>EI Responses Dashboard</title>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+body{font-family:Arial;padding:20px;background:#f5f6fa;}
+table{border-collapse:collapse;width:100%;background:white;}
+th,td{border:1px solid #ccc;padding:6px;text-align:center;}
+button{padding:10px 15px;font-size:16px;margin:10px 0;}
+</style>
+
+</head>
+
+<body>
+
+<h2>Boston EI Responses</h2>
+
+<button onclick="downloadExcel()">Download Excel</button>
+
+<table id="table">
+<thead>
+<tr>
+<th>CPF</th>
+<th>Name</th>
+<th>Gender</th>
+<th>Total</th>
+<th>Self Awareness</th>
+<th>Self Regulation</th>
+<th>Motivation</th>
+<th>Social Skills</th>
+<th>Empathy</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+
+<script>
+
+// 🔥 paste YOUR firebase config here
+const firebaseConfig = {
+  apiKey: "AIzaSyDkBZtoGS8OWFXC42yqkLkMK6vbUXpfVjU",
+  authDomain: "boston-el-quiz.firebaseapp.com",
+  projectId: "boston-el-quiz",
+  storageBucket: "boston-el-quiz.firebasestorage.app",
+  messagingSenderId: "457269376890",
+  appId: "1:457269376890:web:b5c6c561d4de9ee92608c3",
+  measurementId: "G-EDRXJ0FVTT"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+let exportData=[];
+
+function bucketAvg(ans,start,end){
+let sum=0;
+for(let i=start;i<=end;i++){
+sum+=ans["q"+i]||0;
+}
+return (sum/5).toFixed(2);
+}
+
+async function loadData(){
+
+let snap=await db.collection("responses").get();
+let tbody=document.querySelector("#table tbody");
+
+snap.forEach(doc=>{
+
+let d=doc.data();
+let a=d.answers;
+
+let sa=bucketAvg(a,1,5);
+let sr=bucketAvg(a,6,10);
+let mo=bucketAvg(a,11,15);
+let ss=bucketAvg(a,16,20);
+let em=bucketAvg(a,21,25);
+
+let row=[
+d.cpf,d.name,d.gender,d.total,
+sa,sr,mo,ss,em
+];
+
+exportData.push({
+CPF:d.cpf,
+Name:d.name,
+Gender:d.gender,
+Total:d.total,
+SelfAwareness:sa,
+SelfRegulation:sr,
+Motivation:mo,
+SocialSkills:ss,
+Empathy:em
+});
+
+let tr=document.createElement("tr");
+row.forEach(v=>{
+let td=document.createElement("td");
+td.innerText=v;
+tr.appendChild(td);
+});
+
+tbody.appendChild(tr);
+
+});
+
+}
+
+function downloadExcel(){
+
+let ws=XLSX.utils.json_to_sheet(exportData);
+let wb=XLSX.utils.book_new();
+XLSX.utils.book_append_sheet(wb,ws,"Responses");
+XLSX.writeFile(wb,"EI_responses.xlsx");
+
+}
+
+loadData();
+
+</script>
+
+</body>
+</html>

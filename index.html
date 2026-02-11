@@ -74,6 +74,33 @@ text-align:center;
 }
 
 </style>
+  <!-- Firebase (Compat SDK for simple script usage) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<script>
+  // ✅ Paste YOUR firebaseConfig here (from Firebase console)
+const firebaseConfig = {
+  apiKey: "AIzaSyDkBZtoGS8OWFXC42yqkLkMK6vbUXpfVjU",
+  authDomain: "boston-el-quiz.firebaseapp.com",
+  projectId: "boston-el-quiz",
+  storageBucket: "boston-el-quiz.firebasestorage.app",
+  messagingSenderId: "457269376890",
+  appId: "1:457269376890:web:b5c6c561d4de9ee92608c3",
+  measurementId: "G-EDRXJ0FVTT"
+};
+
+  firebase.initializeApp(firebaseConfig);
+
+  const db = firebase.firestore();
+
+  // Sign in anonymously so Firestore rules can allow create
+  firebase.auth().signInAnonymously().catch((error) => {
+    console.error("Anonymous auth failed:", error);
+  });
+</script>
+
 </head>
 
 <body>
@@ -247,46 +274,75 @@ Try to be honest – it’s a waste of time to try to improve your score just to
 <h3 id="result"></h3>
 
 <script>
+async function calculate(){
 
-function calculate(){
+  let cpf = document.getElementById("cpf").value.trim();
+  let name = document.getElementById("name").value.trim();
+  let gender = document.getElementById("gender").value;
 
-let cpf=document.getElementById("cpf").value.trim();
-let name=document.getElementById("name").value.trim();
-let gender=document.getElementById("gender").value;
+  if(!cpf || !name || !gender){
+    alert("Please fill CPF, Name and Gender.");
+    return;
+  }
 
-if(!cpf || !name || !gender){
-alert("Please fill CPF, Name and Gender.");
-return;
+  let total = 0;
+  let unanswered = 0;
+
+  // capture answers
+  const answers = {};
+
+  for(let i=1;i<=25;i++){
+    let selected = document.querySelector(`input[name="q${i}"]:checked`);
+    if(selected){
+      const v = parseInt(selected.value);
+      total += v;
+      answers[`q${i}`] = v;     // store score per question
+    } else {
+      unanswered++;
+    }
+  }
+
+  if(unanswered > 0){
+    alert("Please answer all questions!");
+    return;
+  }
+
+  let interpretation = "";
+  if(total >= 85) interpretation="Excellent Emotional Intelligence";
+  else if(total >= 65) interpretation="Good Emotional Intelligence";
+  else if(total >= 45) interpretation="Needs Improvement";
+  else interpretation="Development Required";
+
+  // ✅ Save to Firestore
+  try {
+    // wait until auth is ready
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert("Auth not ready. Please wait 2 seconds and try again.");
+      return;
+    }
+
+    await db.collection("responses").add({
+      cpf,
+      name,
+      gender,
+      total,
+      interpretation,
+      answers,                 // q1..q25 values
+      submittedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      userId: user.uid
+    });
+
+    document.getElementById("result").innerHTML =
+      `CPF: ${cpf}<br>Name: ${name}<br>Gender: ${gender}<br><br>Total Score: ${total}<br>${interpretation}<br><br><small>Saved successfully.</small>`;
+
+    window.scrollTo(0, document.body.scrollHeight);
+
+  } catch (err) {
+    console.error(err);
+    alert("Failed to save to Firebase. Check console for error.");
+  }
 }
-
-let total=0;
-let unanswered=0;
-
-for(let i=1;i<=25;i++){
-let selected=document.querySelector(`input[name="q${i}"]:checked`);
-if(selected) total+=parseInt(selected.value);
-else unanswered++;
-}
-
-if(unanswered>0){
-alert("Please answer all questions!");
-return;
-}
-
-let interpretation="";
-
-if(total>=85) interpretation="Excellent Emotional Intelligence";
-else if(total>=65) interpretation="Good Emotional Intelligence";
-else if(total>=45) interpretation="Needs Improvement";
-else interpretation="Development Required";
-
-document.getElementById("result").innerHTML=
-`CPF: ${cpf}<br>Name: ${name}<br>Gender: ${gender}<br><br>Total Score: ${total}<br>${interpretation}`;
-
-window.scrollTo(0,document.body.scrollHeight);
-
-}
-
 </script>
 
 </body>

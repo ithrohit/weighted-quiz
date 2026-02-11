@@ -1,11 +1,114 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Weighted Quiz</title>
+<title>Boston EI Questionnaire</title>
+
+<style>
+
+body{
+font-family: Arial, sans-serif;
+background:#f5f6fa;
+margin:0;
+padding:20px;
+max-width:900px;
+margin:auto;
+}
+
+h1{
+text-align:center;
+color:#2c3e50;
+}
+
+.intro{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+.user-info{
+background:white;
+padding:20px;
+border-radius:10px;
+margin-bottom:20px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+.user-info input,
+.user-info select{
+width:100%;
+padding:8px;
+margin-top:5px;
+margin-bottom:15px;
+}
+
+.question{
+background:white;
+padding:15px;
+margin-bottom:15px;
+border-radius:10px;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+button{
+width:100%;
+padding:15px;
+font-size:18px;
+background:#3498db;
+color:white;
+border:none;
+border-radius:8px;
+cursor:pointer;
+}
+
+button:hover{
+background:#2980b9;
+}
+
+#result{
+margin-top:25px;
+font-size:22px;
+font-weight:bold;
+text-align:center;
+}
+
+</style>
 </head>
 
 <body>
+
+<h1>The Boston EI Questionnaire</h1>
+
+<div class="intro">
+<p>
+For each question, circle the response that comes closest to how you feel about the answer.<br>
+Try to be honest – it’s a waste of time to try to improve your score just to look good!
+</p>
+</div>
+
+<div class="user-info">
+
+<label>CPF</label>
+<input type="text" id="cpf" required>
+
+<label>Name</label>
+<input type="text" id="name" required>
+
+<label>Gender</label>
+<select id="gender">
+<option value="">Select</option>
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
+
+</div>
+
 <form id="quiz">
+
+<!-- QUESTIONS START -->
+
 <h2>Can you tell when your mood is changing?</h2>
 <label><input type='radio' name='q1' value='4'> Always</label><br>
 <label><input type='radio' name='q1' value='3'> Sometimes</label><br>
@@ -132,7 +235,9 @@
 <label><input type='radio' name='q25' value='2'> Rarely</label><br>
 <label><input type='radio' name='q25' value='1'> Never</label><br>
 
-  
+
+<!-- QUESTIONS END -->
+
 <br>
 
 <button type="button" onclick="calculate()">Submit</button>
@@ -143,42 +248,45 @@
 
 <script>
 
-function calculate() {
+function calculate(){
 
-let total = 0;
-let unanswered = 0;
+let cpf=document.getElementById("cpf").value.trim();
+let name=document.getElementById("name").value.trim();
+let gender=document.getElementById("gender").value;
+
+if(!cpf || !name || !gender){
+alert("Please fill CPF, Name and Gender.");
+return;
+}
+
+let total=0;
+let unanswered=0;
 
 for(let i=1;i<=25;i++){
-    let selected = document.querySelector(`input[name="q${i}"]:checked`);
-
-    if(selected){
-        total += parseInt(selected.value);
-    } else {
-        unanswered++;
-    }
+let selected=document.querySelector(`input[name="q${i}"]:checked`);
+if(selected) total+=parseInt(selected.value);
+else unanswered++;
 }
 
-if(unanswered > 0){
-    alert("Please answer all questions!");
-    return;
+if(unanswered>0){
+alert("Please answer all questions!");
+return;
 }
 
-let interpretation = "";
+let interpretation="";
 
-if(total >= 85)
-    interpretation = "Excellent Emotional Intelligence";
-else if(total >= 65)
-    interpretation = "Good Emotional Intelligence";
-else if(total >= 45)
-    interpretation = "Needs Improvement";
-else
-    interpretation = "Development Required";
+if(total>=85) interpretation="Excellent Emotional Intelligence";
+else if(total>=65) interpretation="Good Emotional Intelligence";
+else if(total>=45) interpretation="Needs Improvement";
+else interpretation="Development Required";
 
-document.getElementById("result").innerHTML =
-`Total Score: ${total}<br>${interpretation}`;
+document.getElementById("result").innerHTML=
+`CPF: ${cpf}<br>Name: ${name}<br>Gender: ${gender}<br><br>Total Score: ${total}<br>${interpretation}`;
 
-window.scrollTo(0, document.body.scrollHeight);
+window.scrollTo(0,document.body.scrollHeight);
+
 }
+
 </script>
 
 </body>
